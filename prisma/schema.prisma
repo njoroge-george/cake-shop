@@ -1,0 +1,362 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  MPESA
+  CARD
+  CASH
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String
+  phone         String?
+  role          UserRole  @default(CUSTOMER)
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  reviews       Review[]
+  favorites     Favorite[]
+  addresses     Address[]
+  cart          CartItem[]
+  messages      Message[]
+  messageReplies Message[] @relation("MessageReplies")
+  customOrders  CustomOrder[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cakes Cake[]
+
+  @@map("categories")
+}
+
+model Cake {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  images      String[]
+  basePrice   Float
+  categoryId  String
+  flavors     String[]
+  sizes       Json // { name: "Small", price: 500, serves: 10 }
+  layers      Json // { name: "Single Layer", price: 0 }
+  featured    Boolean  @default(false)
+  inStock     Boolean  @default(true)
+  isVisible   Boolean  @default(true) // Controls visibility in customer-facing store
+  stock       Int      @default(0)
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   Category     @relation(fields: [categoryId], references: [id])
+  reviews    Review[]
+  favorites  Favorite[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@map("cakes")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int // 1-5
+  comment   String   @db.Text
+  userId    String
+  cakeId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cake Cake @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cakeId])
+  @@map("reviews")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  cakeId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cake Cake @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cakeId])
+  @@map("favorites")
+}
+
+model CartItem {
+  id              String   @id @default(cuid())
+  userId          String
+  cakeId          String
+  quantity        Int      @default(1)
+  selectedSize    String
+  selectedFlavor  String
+  selectedLayers  String
+  customMessage   String?
+  specialRequests String?
+  price           Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cake Cake @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+
+  @@map("cart_items")
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  phone     String
+  street    String
+  city      String
+  county    String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String
+  addressId       String
+  deliveryDate    DateTime
+  deliveryTime    String
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod
+  subtotal        Float
+  deliveryFee     Float
+  discount        Float         @default(0)
+  total           Float
+  promoCode       String?
+  notes           String?
+  mpesaReference  String?
+  // Manual Paybill flow fields
+  paybillNumber   String?
+  paybillAccount  String?
+  paymentReference String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id])
+  address Address     @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String @id @default(cuid())
+  orderId         String
+  cakeId          String
+  quantity        Int
+  selectedSize    String
+  selectedFlavor  String
+  selectedLayers  String
+  customMessage   String?
+  specialRequests String?
+  price           Float
+  subtotal        Float
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  cake  Cake  @relation(fields: [cakeId], references: [id])
+
+  @@map("order_items")
+}
+
+model PromoCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  description String?
+  discount    Float // percentage or fixed amount
+  type        String // "PERCENTAGE" or "FIXED"
+  minOrder    Float?
+  maxDiscount Float?
+  validFrom   DateTime
+  validUntil  DateTime
+  usageLimit  Int?
+  usageCount  Int       @default(0)
+  isActive    Boolean   @default(true)
+  season      String?
+  reference   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("promo_codes")
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+
+  @@map("settings")
+}
+
+enum CustomOrderStatus {
+  PENDING
+  REVIEWING
+  QUOTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model CustomOrder {
+  id               String            @id @default(cuid())
+  userId           String?
+  name             String
+  email            String
+  phone            String
+  eventType        String
+  eventDate        DateTime
+  servings         Int
+  budget           Float?
+  description      String            @db.Text
+  flavors          String?
+  colors           String?
+  theme            String?
+  specialRequests  String?           @db.Text
+  referenceImages  String[]
+  status           CustomOrderStatus @default(PENDING)
+  adminNotes       String?           @db.Text
+  quotedPrice      Float?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("custom_orders")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String   @db.Text
+  userId    String?
+  isRead    Boolean  @default(false)
+  reply     String?  @db.Text
+  repliedAt DateTime?
+  repliedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  replier   User? @relation("MessageReplies", fields: [repliedBy], references: [id], onDelete: SetNull)
+
+  @@map("messages")
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  bio         String   @db.Text
+  image       String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("team_members")
+}
