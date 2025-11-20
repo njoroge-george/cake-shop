@@ -11,10 +11,8 @@ import {
   Divider,
   TextField,
   Paper,
-  Grid2,
 } from '@mui/material';
-
-const Grid = Grid2;
+import Grid from '@mui/material/Unstable_Grid2';
 import {
   Delete,
   Add,
