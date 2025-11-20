@@ -12,7 +12,6 @@ import {
   TextField,
   Paper,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import {
   Delete,
   Add,
@@ -79,9 +78,13 @@ export default function CartPage() {
           {items.length} {items.length === 1 ? 'item' : 'items'} in your cart
         </Typography>
 
-        <Grid container spacing={4}>
+        <Box sx={{ 
+          display: 'grid', 
+          gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+          gap: 4 
+        }}>
           {/* Cart Items */}
-          <Grid size={{ xs: 12, md: 8 }}>
+          <Box>
             {items.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -91,24 +94,27 @@ export default function CartPage() {
               >
                 <Card sx={{ mb: 2 }}>
                   <CardContent>
-                    <Grid container spacing={2} alignItems="center">
+                    <Box sx={{ 
+                      display: 'grid',
+                      gridTemplateColumns: { xs: '1fr', sm: '100px 1fr auto' },
+                      gap: 2,
+                      alignItems: 'center'
+                    }}>
                       {/* Image */}
-                      <Grid size={{ xs: 12, sm: 3 }}>
-                        <Box
-                          component="img"
-                          src={item.cake?.images?.[0] || 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400'}
-                          alt={item.cake?.name || 'Cake'}
-                          sx={{
-                            width: '100%',
-                            height: 120,
-                            objectFit: 'cover',
-                            borderRadius: 2,
-                          }}
-                        />
-                      </Grid>
+                      <Box
+                        component="img"
+                        src={item.cake?.images?.[0] || 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400'}
+                        alt={item.cake?.name || 'Cake'}
+                        sx={{
+                          width: '100%',
+                          height: 120,
+                          objectFit: 'cover',
+                          borderRadius: 2,
+                        }}
+                      />
 
                       {/* Details */}
-                      <Grid size={{ xs: 12, sm: 5 }}>
+                      <Box>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                           {item.cake?.name || 'Cake'}
                         </Typography>
@@ -126,43 +132,41 @@ export default function CartPage() {
                             Message: "{item.customMessage}"
                           </Typography>
                         )}
-                      </Grid>
+                      </Box>
 
                       {/* Quantity & Price */}
-                      <Grid size={{ xs: 12, sm: 4 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <IconButton
-                              size="small"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              disabled={item.quantity <= 1}
-                            >
-                              <Remove />
-                            </IconButton>
-                            <Typography sx={{ minWidth: 30, textAlign: 'center' }}>
-                              {item.quantity}
-                            </Typography>
-                            <IconButton
-                              size="small"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            >
-                              <Add />
-                            </IconButton>
-                          </Box>
-
-                          <Typography variant="h6" color="primary.main" sx={{ fontWeight: 700 }}>
-                            KSh {(item.price * item.quantity).toLocaleString()}
-                          </Typography>
-
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-end' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <IconButton
-                            color="error"
-                            onClick={() => removeItem(item.id)}
+                            size="small"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
                           >
-                            <Delete />
+                            <Remove />
+                          </IconButton>
+                          <Typography sx={{ minWidth: 30, textAlign: 'center' }}>
+                            {item.quantity}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Add />
                           </IconButton>
                         </Box>
-                      </Grid>
-                    </Grid>
+
+                        <Typography variant="h6" color="primary.main" sx={{ fontWeight: 700 }}>
+                          KSh {(item.price * item.quantity).toLocaleString()}
+                        </Typography>
+
+                        <IconButton
+                          color="error"
+                          onClick={() => removeItem(item.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Box>
+                    </Box>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -176,10 +180,10 @@ export default function CartPage() {
             >
               Clear Cart
             </Button>
-          </Grid>
+          </Box>
 
           {/* Order Summary */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Box>
             <Paper elevation={3} sx={{ p: 3, position: 'sticky', top: 100 }}>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
                 Order Summary
@@ -235,14 +239,14 @@ export default function CartPage() {
 
               <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  💳 Secure M-Pesa Payment
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  🚚 Free delivery on orders above KSh 5,000
-                </Typography>
               </Box>
             </Paper>
-          </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </>
+  );
+}         </Grid>
         </Grid>
       </Container>
     </>

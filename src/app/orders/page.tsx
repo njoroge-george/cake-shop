@@ -19,7 +19,6 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import {
   ShoppingBag,
   LocalShipping,
@@ -182,9 +181,9 @@ export default function OrdersPage() {
                 </Button>
               </Paper>
             ) : (
-              <Grid container spacing={3}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {orders.map((order, index) => (
-                  <Grid size={{ xs: 12 }} key={order.id}>
+                  <Box key={order.id}>
                     <motion.div
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -291,8 +290,12 @@ export default function OrdersPage() {
                           <Divider sx={{ my: 2 }} />
 
                           {/* Order Details */}
-                          <Grid container spacing={2}>
-                            <Grid size={{ xs: 12, md: 6 }}>
+                          <Box sx={{ 
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                            gap: 2
+                          }}>
+                            <Box>
                               <Typography variant="body2" color="text.secondary" gutterBottom>
                                 Delivery Details
                               </Typography>
@@ -310,18 +313,16 @@ export default function OrdersPage() {
                               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                                 📍 {order.deliveryAddress}
                               </Typography>
-                            </Grid>
-                            <Grid size={{ xs: 12, md: 6 }}>
-                              <Box sx={{ textAlign: { md: 'right' } }}>
-                                <Typography variant="body2" color="text.secondary" gutterBottom>
-                                  Order Total
-                                </Typography>
-                                <Typography variant="h5" color="primary.main" sx={{ fontWeight: 700 }}>
-                                  KSh {order.total.toLocaleString()}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          </Grid>
+                            </Box>
+                            <Box sx={{ textAlign: { md: 'right' } }}>
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Order Total
+                              </Typography>
+                              <Typography variant="h5" color="primary.main" sx={{ fontWeight: 700 }}>
+                                KSh {order.total.toLocaleString()}
+                              </Typography>
+                            </Box>
+                          </Box>
 
                           {/* Action Buttons */}
                           <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
@@ -351,9 +352,9 @@ export default function OrdersPage() {
                         </CardContent>
                       </Card>
                     </motion.div>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             )}
           </motion.div>
         </Container>
