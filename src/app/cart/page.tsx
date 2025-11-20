@@ -7,12 +7,12 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   IconButton,
   Divider,
   TextField,
   Paper,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   Delete,
   Add,
@@ -81,7 +81,7 @@ export default function CartPage() {
 
         <Grid container spacing={4}>
           {/* Cart Items */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             {items.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -93,7 +93,7 @@ export default function CartPage() {
                   <CardContent>
                     <Grid container spacing={2} alignItems="center">
                       {/* Image */}
-                      <Grid item xs={12} sm={3}>
+                      <Grid size={{ xs: 12, sm: 3 }}>
                         <Box
                           component="img"
                           src={item.cake?.images?.[0] || 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400'}
@@ -108,7 +108,7 @@ export default function CartPage() {
                       </Grid>
 
                       {/* Details */}
-                      <Grid item xs={12} sm={5}>
+                      <Grid size={{ xs: 12, sm: 5 }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                           {item.cake?.name || 'Cake'}
                         </Typography>
@@ -129,7 +129,7 @@ export default function CartPage() {
                       </Grid>
 
                       {/* Quantity & Price */}
-                      <Grid item xs={12} sm={4}>
+                      <Grid size={{ xs: 12, sm: 4 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <IconButton
@@ -179,7 +179,7 @@ export default function CartPage() {
           </Grid>
 
           {/* Order Summary */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Paper elevation={3} sx={{ p: 3, position: 'sticky', top: 100 }}>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
                 Order Summary

@@ -7,7 +7,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Grid,
   Chip,
   Divider,
   Button,
@@ -20,6 +19,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   ShoppingBag,
   LocalShipping,
@@ -184,7 +184,7 @@ export default function OrdersPage() {
             ) : (
               <Grid container spacing={3}>
                 {orders.map((order, index) => (
-                  <Grid item xs={12} key={order.id}>
+                  <Grid size={{ xs: 12 }} key={order.id}>
                     <motion.div
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -292,7 +292,7 @@ export default function OrdersPage() {
 
                           {/* Order Details */}
                           <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                               <Typography variant="body2" color="text.secondary" gutterBottom>
                                 Delivery Details
                               </Typography>
@@ -311,7 +311,7 @@ export default function OrdersPage() {
                                 📍 {order.deliveryAddress}
                               </Typography>
                             </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                               <Box sx={{ textAlign: { md: 'right' } }}>
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
                                   Order Total
