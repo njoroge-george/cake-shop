@@ -18,8 +18,10 @@ import {
   ListItemAvatar,
   CircularProgress,
   Alert,
+  Grid2,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+
+const Grid = Grid2;
 import {
   ShoppingBag,
   LocalShipping,

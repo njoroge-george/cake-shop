@@ -11,8 +11,10 @@ import {
   Divider,
   TextField,
   Paper,
+  Grid2,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+
+const Grid = Grid2;
 import {
   Delete,
   Add,
