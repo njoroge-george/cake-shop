@@ -239,15 +239,15 @@ export default function CartPage() {
 
               <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  💳 Secure M-Pesa Payment
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  🚚 Free delivery on orders above KSh 5,000
+                </Typography>
               </Box>
             </Paper>
           </Box>
         </Box>
-      </Container>
-    </>
-  );
-}         </Grid>
-        </Grid>
       </Container>
     </>
   );
