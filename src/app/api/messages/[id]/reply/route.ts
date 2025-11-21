@@ -17,7 +17,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { reply } = await req.json();
+  const { reply, mode } = await req.json();
 
     if (!reply) {
       return NextResponse.json({ error: 'Reply message is required' }, { status: 400 });
@@ -32,7 +32,50 @@ export async function POST(
       return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }
 
-    // Update message with reply
+    const replyMode = mode === 'in-app' ? 'in-app' : 'email';
+
+    // If in-app reply: create a CHAT message so it appears in the user's chat thread
+    if (replyMode === 'in-app') {
+      // Ensure original message is tied to a registered user for in-app visibility
+      if (!originalMessage.userId) {
+        return NextResponse.json({
+          error: 'In-app reply not available: message is not associated with a registered user.',
+        }, { status: 400 });
+      }
+
+      // Persist new chat message (subject: 'CHAT') so /api/chat returns it for the user
+      const chatMessage = await prisma.message.create({
+        data: {
+          subject: 'CHAT',
+          message: reply,
+          userId: originalMessage.userId,
+          repliedBy: (session.user as any).id,
+          name: 'Admin',
+          email: (session.user as any).email || originalMessage.email || 'admin@cakeshop.com',
+          isRead: false,
+        },
+        select: { id: true, message: true, createdAt: true, repliedBy: true, userId: true },
+      });
+
+      // Mark original message as read & note that a reply happened (without storing reply text here)
+      await prisma.message.update({
+        where: { id },
+        data: {
+          repliedAt: new Date(),
+          repliedBy: (session.user as any).id,
+          isRead: true,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'In-app reply created and visible to user chat.',
+        channel: 'in-app',
+        data: chatMessage,
+      });
+    }
+
+    // Email reply path (default)
     const updatedMessage = await prisma.message.update({
       where: { id },
       data: {
@@ -43,7 +86,6 @@ export async function POST(
       },
     });
 
-    // Send email notification to customer
     try {
       await sendEmail({
         to: originalMessage.email,
@@ -58,12 +100,12 @@ export async function POST(
       });
     } catch (emailError) {
       console.error('Failed to send reply email:', emailError);
-      // Continue even if email fails - reply is already saved
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Reply sent successfully',
+      message: 'Email reply sent successfully',
+      channel: 'email',
       data: updatedMessage,
     });
 

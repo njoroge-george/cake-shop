@@ -31,7 +31,9 @@ import {
   Search,
   Email,
   Phone,
+  Chat,
 } from '@mui/icons-material';
+import { RadioGroup, FormControlLabel, Radio, FormLabel } from '@mui/material';
 import AdminLayout from '@/components/admin/AdminLayout';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -69,6 +71,8 @@ export default function AdminMessagesPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [replyText, setReplyText] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
+  const [replyMode, setReplyMode] = useState<'in-app' | 'email'>('in-app');
+  const [replyError, setReplyError] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -155,6 +159,8 @@ export default function AdminMessagesPage() {
     setReplyText(message.reply || '');
     setReplyDialogOpen(true);
     handleMenuClose();
+    setReplyMode('in-app');
+    setReplyError('');
   };
 
   const handleSendReply = async () => {
@@ -165,25 +171,36 @@ export default function AdminMessagesPage() {
 
     try {
       setSendingReply(true);
+      setReplyError('');
       const response = await axios.post(`/api/messages/${selectedMessage.id}/reply`, {
         reply: replyText,
+        mode: replyMode,
       });
 
       if (response.data.success) {
-        // Update local state
-        setMessages(messages.map(m =>
-          m.id === selectedMessage.id
-            ? { ...m, reply: replyText, repliedAt: new Date().toISOString(), isRead: true }
-            : m
-        ));
-
+        if (replyMode === 'email') {
+          setMessages(messages.map(m =>
+            m.id === selectedMessage.id
+              ? { ...m, reply: replyText, repliedAt: new Date().toISOString(), isRead: true }
+              : m
+          ));
+        } else {
+          // In-app reply: mark original as replied (no stored reply text) so badge shows
+          setMessages(messages.map(m =>
+            m.id === selectedMessage.id
+              ? { ...m, repliedAt: new Date().toISOString(), isRead: true }
+              : m
+          ));
+        }
         setReplyDialogOpen(false);
         setReplyText('');
-        alert('Reply sent successfully!');
+        alert(replyMode === 'in-app' ? 'In-app reply sent (visible in user chat)' : 'Email reply sent');
+      } else if (response.data.error) {
+        setReplyError(response.data.error);
       }
     } catch (error) {
       console.error('Error sending reply:', error);
-      alert('Failed to send reply. Please try again.');
+      setReplyError(error.response?.data?.error || 'Failed to send reply.');
     } finally {
       setSendingReply(false);
     }
@@ -511,9 +528,33 @@ export default function AdminMessagesPage() {
               </Typography>
             </Box>
 
-            <Alert severity="info" sx={{ mb: 2 }}>
-              This reply will be sent via email to the customer and saved in the system.
-            </Alert>
+            <Box sx={{ mb: 3 }}>
+              <FormLabel id="reply-mode-label" sx={{ fontWeight: 600, mb: 1 }}>Reply Channel</FormLabel>
+              <RadioGroup
+                row
+                aria-labelledby="reply-mode-label"
+                value={replyMode}
+                onChange={(e) => setReplyMode(e.target.value as 'in-app' | 'email')}
+              >
+                <FormControlLabel value="in-app" control={<Radio />} label={<Box sx={{ display:'flex', alignItems:'center', gap:0.5 }}><Chat sx={{ fontSize:16 }} /> In-App (chat)</Box>} />
+                <FormControlLabel value="email" control={<Radio />} label={<Box sx={{ display:'flex', alignItems:'center', gap:0.5 }}><Email sx={{ fontSize:16 }} /> Email</Box>} />
+              </RadioGroup>
+              <Alert severity={replyMode === 'in-app' ? 'info' : 'warning'} sx={{ mt:1 }}>
+                {replyMode === 'in-app'
+                  ? 'Creates a chat message visible in the customer\'s in-app conversation. No email will be sent.'
+                  : 'Sends an email reply to the customer and stores the reply text.'}
+              </Alert>
+              {replyMode === 'in-app' && selectedMessage && !selectedMessage.userId && (
+                <Alert severity="error" sx={{ mt:1 }}>
+                  This message is not linked to a registered user; in-app reply is unavailable. Switch to Email.
+                </Alert>
+              )}
+              {replyError && (
+                <Alert severity="error" sx={{ mt:1 }}>
+                  {replyError}
+                </Alert>
+              )}
+            </Box>
 
             <TextField
               fullWidth
@@ -534,10 +575,10 @@ export default function AdminMessagesPage() {
             <Button
               onClick={handleSendReply}
               variant="contained"
-              disabled={sendingReply || !replyText.trim()}
-              startIcon={<Email />}
+              disabled={sendingReply || !replyText.trim() || (replyMode === 'in-app' && selectedMessage && !selectedMessage.userId)}
+              startIcon={replyMode === 'in-app' ? <Chat /> : <Email />}
             >
-              {sendingReply ? 'Sending...' : 'Send Reply'}
+              {sendingReply ? 'Sending...' : replyMode === 'in-app' ? 'Send In-App Reply' : 'Send Email Reply'}
             </Button>
           </DialogActions>
         </Dialog>
