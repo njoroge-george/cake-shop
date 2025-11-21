@@ -20,9 +20,11 @@ import {
   MenuItem,
   useMediaQuery,
   useTheme,
+  Tooltip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
+  ArrowBack,
   Dashboard,
   Cake,
   ShoppingCart,
@@ -40,6 +42,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import axios from 'axios';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const drawerWidth = 260;
 
@@ -53,7 +56,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notifications, setNotifications] = useState({
@@ -62,12 +65,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     pendingCustomOrders: 0,
   });
 
-  useEffect(() => {
-    fetchNotifications();
-    // Refresh notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const showBack = pathname !== '/admin';
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/admin');
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -83,6 +89,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       console.error('Failed to fetch notifications:', error);
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -156,7 +168,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   item.icon
                 )}
               </ListItemIcon>
-              <ListItemText 
+              <ListItemText
                 primary={item.text}
                 primaryTypographyProps={{
                   fontWeight: pathname === item.path ? 600 : 400,
@@ -208,12 +220,28 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          bgcolor: 'background.paper',
+          bgcolor: (theme) => (theme.palette.mode === 'light' ? 'background.paper' : 'background.default'),
           color: 'text.primary',
           boxShadow: 1,
+          borderBottom: 1,
+          borderColor: 'divider',
+          backdropFilter: 'blur(6px)',
         }}
       >
         <Toolbar>
+          {showBack && (
+            <Tooltip title="Go back" enterDelay={400}>
+              <IconButton
+                onClick={handleBack}
+                edge="start"
+                sx={{ mr: 1, display: { xs: 'none', md: 'inline-flex' } }}
+                aria-label="Go back"
+                color="primary"
+              >
+                <ArrowBack />
+              </IconButton>
+            </Tooltip>
+          )}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -226,6 +254,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
             {menuItems.find(item => item.path === pathname)?.text || 'Dashboard'}
           </Typography>
+          <ThemeToggle />
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -233,6 +262,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             aria-haspopup="true"
             onClick={handleMenu}
             color="inherit"
+            sx={{ ml: 1 }}
           >
             <Avatar
               src={(session?.user as any)?.image || undefined}

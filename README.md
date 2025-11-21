@@ -165,9 +165,10 @@ Local file upload system for:
 Files are stored in `/public/images/` with size limits and type validation.
 
 ### Theme System
-- **Light Mode**: Pink (#FF69B4) primary with purple accents
-- **Dark Mode**: Navy blue (#0A1929) background with gold (#FFD700) accents
-- Persistent theme preference stored in localStorage
+- **Light Mode**: Fresh light green palette – primary `#6FD694`, supporting accent `#3DAA5E`, soft mint surfaces (`#F6FFF7`) and crisp dark text for accessibility.
+- **Dark Mode**: Vibrant pink primary `#D81B60` (light `#EC407A`, dark `#880E4F`) on near-black surfaces (`#0A0A0B` / `#121314`) with subtle gradient highlights.
+- Component overrides unify elevation, hover gradients, rounded geometry (8px / 16px) and accessible focus states.
+- Theme preference (light/dark) is persisted via `localStorage` and switchable globally from the header & admin bar.
 
 ## 🔐 Default Credentials
 

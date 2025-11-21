@@ -198,9 +198,13 @@ export default function AdminMessagesPage() {
       } else if (response.data.error) {
         setReplyError(response.data.error);
       }
-    } catch (error) {
-      console.error('Error sending reply:', error);
-      setReplyError(error.response?.data?.error || 'Failed to send reply.');
+    } catch (err: unknown) {
+      console.error('Error sending reply:', err);
+      let message = 'Failed to send reply.';
+      if (axios.isAxiosError(err)) {
+        message = (err.response?.data as any)?.error || message;
+      }
+      setReplyError(message);
     } finally {
       setSendingReply(false);
     }
@@ -544,7 +548,7 @@ export default function AdminMessagesPage() {
                   ? 'Creates a chat message visible in the customer\'s in-app conversation. No email will be sent.'
                   : 'Sends an email reply to the customer and stores the reply text.'}
               </Alert>
-              {replyMode === 'in-app' && selectedMessage && !selectedMessage.userId && (
+              {replyMode === 'in-app' && selectedMessage && !selectedMessage.user && (
                 <Alert severity="error" sx={{ mt:1 }}>
                   This message is not linked to a registered user; in-app reply is unavailable. Switch to Email.
                 </Alert>
@@ -575,7 +579,7 @@ export default function AdminMessagesPage() {
             <Button
               onClick={handleSendReply}
               variant="contained"
-              disabled={sendingReply || !replyText.trim() || (replyMode === 'in-app' && selectedMessage && !selectedMessage.userId)}
+              disabled={sendingReply || !replyText.trim() || (replyMode === 'in-app' && (!selectedMessage || !selectedMessage.user))}
               startIcon={replyMode === 'in-app' ? <Chat /> : <Email />}
             >
               {sendingReply ? 'Sending...' : replyMode === 'in-app' ? 'Send In-App Reply' : 'Send Email Reply'}

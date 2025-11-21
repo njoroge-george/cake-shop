@@ -11,6 +11,7 @@ import {
   MenuItem,
   Typography,
   Container,
+  Tooltip,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -18,8 +19,7 @@ import {
   Cake as CakeIcon,
   Menu as MenuIcon,
   ChatBubbleOutline,
-  LightMode,
-  DarkMode,
+  ArrowBack,
   Home,
   Info,
   Email,
@@ -39,6 +39,8 @@ import { useCartStore } from '@/store/cartStore';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useThemeContext } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
+import { usePathname } from 'next/navigation';
 import { Avatar } from '@mui/material';
 
 const ChatPanel = dynamic(() => import('@/components/ChatPanel'), { ssr: false });
@@ -50,7 +52,8 @@ export default function Header() {
   const router = useRouter();
   const itemCount = useCartStore((state) => state.getItemCount());
   const [chatOpen, setChatOpen] = useState(false);
-  const { mode, toggleTheme } = useThemeContext();
+  const { mode } = useThemeContext();
+  const pathname = usePathname();
   useEffect(() => {
     const openChatListener = () => setChatOpen(true);
     if (typeof window !== 'undefined') {
@@ -87,10 +90,43 @@ export default function Header() {
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
+  const showBack = pathname !== '/' && !pathname.startsWith('/admin');
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
-    <AppBar position="sticky" sx={{ bgcolor: "theme.palette.mode", color: 'text.primary' }} elevation={1}>
+    <AppBar
+      position="sticky"
+      elevation={1}
+      sx={(theme) => ({
+        bgcolor: theme.palette.mode === 'light' ? 'background.paper' : 'background.default',
+        color: 'text.primary',
+        borderBottom: 1,
+        borderColor: 'divider',
+        backdropFilter: 'blur(6px)',
+      })}
+    >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+          {showBack && (
+            <Tooltip title="Go back" enterDelay={400}>
+              <IconButton
+                onClick={handleBack}
+                edge="start"
+                sx={{ mr: 1 }}
+                aria-label="Go back"
+                color="primary"
+              >
+                <ArrowBack />
+              </IconButton>
+            </Tooltip>
+          )}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Box
               component={Link}
@@ -143,13 +179,7 @@ export default function Header() {
 
           {/* Right Side Icons */}
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <IconButton 
-              onClick={toggleTheme} 
-              color="primary"
-              aria-label="Toggle theme"
-            >
-              {mode === 'light' ? <DarkMode /> : <LightMode />}
-            </IconButton>
+            <ThemeToggle />
             <IconButton 
               color="primary" 
               onClick={() => setChatOpen(true)} 
