@@ -98,13 +98,13 @@ export default function AboutPage() {
       <Box sx={{ bgcolor: 'background.default' }}>
         {/* Hero Section */}
         <Box
-          sx={{
-            background: 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 100%)',
-            color: 'white',
+          sx={(theme) => ({
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.light} 100%)`,
+            color: theme.palette.text.primary,
             py: 8,
             position: 'relative',
             overflow: 'hidden',
-          }}
+          })}
         >
           <Container maxWidth="lg">
             <motion.div
@@ -276,7 +276,7 @@ export default function AboutPage() {
                     transition: 'transform 0.3s, box-shadow 0.3s',
                     '&:hover': {
                       transform: 'translateY(-8px)',
-                      boxShadow: 6,
+                      boxShadow: 3,
                     },
                   }}
                 >
@@ -286,17 +286,17 @@ export default function AboutPage() {
                         display: 'inline-flex',
                         p: 2,
                         borderRadius: '50%',
-                        bgcolor: 'primary.light',
-                        color: 'primary.main',
+                        bgcolor: 'primary.dark',
+                        color: 'primary.light',
                         mb: 2,
                       }}
                     >
                       {value.icon}
                     </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                    <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 700, mb: 2 }}>
                       {value.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.primary">
                       {value.description}
                     </Typography>
                   </CardContent>
@@ -406,12 +406,12 @@ export default function AboutPage() {
 
         {/* CTA Section */}
         <Box
-          sx={{
-            background: 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 100%)',
-            color: 'white',
+          sx={(theme) => ({
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.light} 100%)`,
+            color: theme.palette.text.primary,
             py: 8,
             mt: 8,
-          }}
+          })}
         >
           <Container maxWidth="md">
             <Typography

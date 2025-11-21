@@ -13,9 +13,6 @@ import {
   Line,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,9 +23,14 @@ import {
   Area,
 } from 'recharts';
 import AdminLayout from '@/components/admin/AdminLayout';
+import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 
-const COLORS = ['#FF69B4', '#9C27B0', '#FFB6D9', '#BA68C8'];
+// Dynamic chart palettes per mode: pink gradient for dark, light green gradient for light
+const getChartPalette = (mode: 'light' | 'dark') =>
+  mode === 'dark'
+    ? ['#880E4F', '#D81B60', '#EC407A', '#F06292', '#F48FB1', '#F8BBD0']
+    : ['#3E9257', '#6FD694', '#8BE3A9', '#A5ECC0', '#C8F5D9', '#E2FBEC'];
 
 type SalesPoint = { month: string; sales: number; orders: number };
 type NameValue = { name: string; value: number };
@@ -71,6 +73,8 @@ export default function AdminAnalyticsPage() {
     load();
   }, []);
 
+  const theme = useTheme();
+  const CHART_COLORS = getChartPalette(theme.palette.mode);
   return (
     <AdminLayout>
       <Box sx={{ p: 3 }}>
@@ -84,7 +88,11 @@ export default function AdminAnalyticsPage() {
             sx={{
               mt: 3,
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: {
+                xs: 'repeat(12, 1fr)',
+                sm: 'repeat(12, 1fr)',
+                md: 'repeat(12, 1fr)',
+              },
               gap: 2,
             }}
           >
@@ -96,7 +104,13 @@ export default function AdminAnalyticsPage() {
               { label: 'Customers', value: data.stats.totalCustomers },
               { label: 'Low Stock', value: data.stats.lowStock },
             ].map((s, idx) => (
-              <Card key={idx} sx={{ borderRadius: 3, boxShadow: 2 }}>
+              <Card
+                key={idx}
+                sx={{
+                  borderRadius: 1,
+                  gridColumn: { xs: 'span 6', sm: 'span 4', md: 'span 2' },
+                }}
+              >
                 <CardContent>
                   <Typography variant="body2" color="text.secondary">
                     {s.label}
@@ -110,13 +124,18 @@ export default function AdminAnalyticsPage() {
           </Box>
         )}
 
-        {/* ✅ Grid Layout Section */}
+        {/* Charts Grid */}
         <Box
           sx={{
             mt: 4,
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+            gridTemplateColumns: {
+              xs: 'repeat(12, 1fr)',
+              sm: 'repeat(12, 1fr)',
+              md: 'repeat(12, 1fr)',
+            },
             gap: 3,
+            alignItems: 'stretch',
           }}
         >
           {loading && (
@@ -131,7 +150,7 @@ export default function AdminAnalyticsPage() {
           )}
 
           {/* 📊 Sales Overview */}
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+          <Card sx={{ borderRadius: 1, gridColumn: { xs: 'span 12', md: 'span 8' } }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Sales Overview
@@ -146,7 +165,7 @@ export default function AdminAnalyticsPage() {
                   <Line
                     type="monotone"
                     dataKey="sales"
-                    stroke={COLORS[0]}
+                    stroke={theme.palette.primary.main}
                     strokeWidth={3}
                   />
                 </LineChart>
@@ -154,37 +173,32 @@ export default function AdminAnalyticsPage() {
             </CardContent>
           </Card>
 
-          {/* 🥧 Category Distribution */}
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+          {/* 📊 Category Distribution (AreaChart) */}
+          <Card sx={{ borderRadius: 1, gridColumn: { xs: 'span 12', md: 'span 4' } }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Category Distribution
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={data?.categoryDistribution || []}
-                    dataKey="value"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label
-                  >
-                    {(data?.categoryDistribution || []).map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
+                <AreaChart data={data?.categoryDistribution || []}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
                   <Tooltip />
-                </PieChart>
+                  <Legend />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke={theme.palette.primary.dark}
+                    fill={theme.palette.primary.light}
+                    fillOpacity={0.6}
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* 🍰 Top Selling Cakes */}
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+          <Card sx={{ borderRadius: 1, gridColumn: { xs: 'span 12', md: 'span 6' } }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Top Selling Cakes
@@ -196,14 +210,14 @@ export default function AdminAnalyticsPage() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="totalSold" name="Units Sold" fill={COLORS[1]} />
+                  <Bar dataKey="totalSold" name="Units Sold" fill={CHART_COLORS[2]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* 📈 Order Status Overview */}
-          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+          <Card sx={{ borderRadius: 1, gridColumn: { xs: 'span 12', md: 'span 6' } }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Order Status Overview
@@ -218,8 +232,8 @@ export default function AdminAnalyticsPage() {
                   <Area
                     type="monotone"
                     dataKey="value"
-                    fill={COLORS[2]}
-                    stroke={COLORS[3]}
+                    fill={CHART_COLORS[4]}
+                    stroke={CHART_COLORS[0]}
                   />
                 </AreaChart>
               </ResponsiveContainer>

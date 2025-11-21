@@ -47,25 +47,21 @@ const features = [
     icon: <Cake sx={{ fontSize: 50 }} />, 
     title: 'Premium Quality', 
     description: 'Only the finest ingredients, baked to perfection',
-    color: '#FF69B4'
   },
   { 
     icon: <LocalShipping sx={{ fontSize: 50 }} />, 
     title: 'Lightning Fast', 
     description: 'Same-day delivery across Nairobi',
-    color: '#9C27B0'
   },
   { 
     icon: <Star sx={{ fontSize: 50 }} />, 
     title: 'Award Winning', 
     description: '5-star rated by 10,000+ customers',
-    color: '#FFD700'
   },
   { 
     icon: <AutoAwesome sx={{ fontSize: 50 }} />, 
     title: 'Artistic Design', 
     description: 'Every cake is a work of art',
-    color: '#FF6B6B'
   },
 ];
 
@@ -92,8 +88,8 @@ export default function Home() {
             alignItems: 'center',
             overflow: 'hidden',
             background: theme.palette.mode === 'dark' 
-              ? 'linear-gradient(135deg, #0A1929 0%, #1a237e 50%, #4a148c 100%)'
-              : 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 50%, #6A1B9A 100%)',
+              ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.primary.dark} 100%)`
+              : `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 50%, ${theme.palette.primary.dark} 100%)`,
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -165,7 +161,7 @@ export default function Home() {
                       <Box
                         component="span"
                         sx={{
-                          background: 'linear-gradient(90deg, #FFD700, #FFA500, #FF69B4)',
+                          background: (t) => `linear-gradient(90deg, ${t.palette.secondary.main}, ${t.palette.warning.main}, ${t.palette.primary.light})`,
                           backgroundClip: 'text',
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
@@ -298,12 +294,14 @@ export default function Home() {
                       width: 150,
                       height: 150,
                       borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                      background: (t) => `linear-gradient(135deg, ${t.palette.warning.main}, ${t.palette.secondary.main})`,
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 10px 40px rgba(255,215,0,0.4)',
+                      boxShadow: (t) => t.palette.mode === 'dark' 
+                        ? `0 10px 40px ${t.palette.warning.main}60`
+                        : `0 10px 40px ${t.palette.warning.main}40`,
                       animation: 'float 3s ease-in-out infinite',
                       '@keyframes float': {
                         '0%, 100%': { transform: 'translateY(0)' },
@@ -326,12 +324,13 @@ export default function Home() {
         </Box>
 
         {/* Stats Section */}
-        <Container maxWidth="xl" sx={{ mt: -8, mb: 12, position: 'relative', zIndex: 2 }}>
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 12, position: 'relative', zIndex: 2 }}>
           <Box
             sx={{
               display: 'grid',
               gridTemplateColumns: {
-                xs: 'repeat(2, 1fr)',
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
                 md: 'repeat(4, 1fr)',
               },
               gap: 3,
@@ -350,15 +349,15 @@ export default function Home() {
                   sx={{
                     p: 4,
                     textAlign: 'center',
-                    borderRadius: 4,
+                    borderRadius: 1,
                     background: theme.palette.mode === 'dark'
-                      ? 'linear-gradient(135deg, #132F4C 0%, #1a237e 100%)'
-                      : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
-                    border: theme.palette.mode === 'dark' ? '1px solid rgba(255,215,0,0.2)' : 'none',
+                      ? `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`
+                      : `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+                    border: 'none',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-10px)',
-                      boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                      boxShadow: '0 12px 1px rgba(0, 0, 0, 0.1)',
                     },
                   }}
                 >
@@ -456,29 +455,31 @@ export default function Home() {
                     sx={{
                       p: 4,
                       height: '100%',
-                      borderRadius: 4,
+                      borderRadius: 1,
                       background: theme.palette.mode === 'dark'
-                        ? 'linear-gradient(135deg, #132F4C 0%, #1a237e 100%)'
-                        : 'white',
-                      border: theme.palette.mode === 'dark' 
-                        ? '2px solid rgba(255,215,0,0.2)' 
-                        : '2px solid transparent',
+                        ? theme.palette.background.paper
+                        : theme.palette.background.paper,
+                      border: 'none',
                       boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
                       transition: 'all 0.4s ease',
                       '&:hover': {
-                        borderColor: feature.color,
-                        boxShadow: `0 20px 60px ${feature.color}40`,
+                        borderColor: theme.palette.primary.main,
+                        boxShadow: theme.palette.mode === 'dark' 
+                          ? `0 20px 5px ${theme.palette.primary.main}60`
+                          : `0 20px 5px ${theme.palette.primary.main}40`,
                       },
                     }}
                   >
                     <Box
                       sx={{
-                        color: feature.color,
+                        color: 'primary.main',
                         mb: 3,
                         display: 'inline-flex',
                         p: 2,
-                        borderRadius: 3,
-                        bgcolor: `${feature.color}15`,
+                        borderRadius: '20px 0',
+                        bgcolor: (t) => t.palette.mode === 'dark' 
+                          ? `${t.palette.primary.main}20`
+                          : `${t.palette.primary.main}15`,
                       }}
                     >
                       {feature.icon}
@@ -640,193 +641,189 @@ export default function Home() {
               ))}
             </Box>
           </Container>
-        </Box>
 
-        {/* Epic CTA Section */}
-        <Box
-          sx={{
-            position: 'relative',
-            py: 15,
-            overflow: 'hidden',
-            background: (theme) =>
-              theme.palette.mode === 'dark'
-                ? 'linear-gradient(135deg, #1a237e 0%, #4a148c 50%, #6A1B9A 100%)'
-                : 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 50%, #6A1B9A 100%)',
-          }}
-        >
-          {/* Animated background elements */}
           <Box
             sx={{
-              position: 'absolute',
-              top: '-50%',
-              right: '-10%',
-              width: '600px',
-              height: '600px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-              animation: 'pulse 4s ease-in-out infinite',
+              position: 'relative',
+              py: 15,
+              overflow: 'hidden',
+              background: (t) =>
+                t.palette.mode === 'dark'
+                  ? `linear-gradient(135deg, ${t.palette.background.default} 0%, ${t.palette.primary.dark} 100%)`
+                  : `linear-gradient(135deg, ${t.palette.primary.light} 0%, ${t.palette.primary.main} 50%, ${t.palette.primary.dark} 100%)`,
             }}
-          />
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '-30%',
-              left: '-5%',
-              width: '400px',
-              height: '400px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-              animation: 'pulse 4s ease-in-out infinite 2s',
-            }}
-          />
+          >
+            {/* Animated background elements */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '-50%',
+                right: '-10%',
+                width: '600px',
+                height: '600px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                animation: 'pulse 4s ease-in-out infinite',
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '-30%',
+                left: '-5%',
+                width: '400px',
+                height: '400px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                animation: 'pulse 4s ease-in-out infinite 2s',
+              }}
+            />
 
-          <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <Box sx={{ textAlign: 'center', color: 'white' }}>
-                <Typography
-                  variant="h2"
-                  sx={{
-                    fontWeight: 900,
-                    mb: 3,
-                    fontSize: { xs: '2.5rem', md: '4rem' },
-                    textShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  Ready to Experience{' '}
-                  <Box
-                    component="span"
+            <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <Box sx={{ textAlign: 'center', color: 'white' }}>
+                  <Typography
+                    variant="h2"
                     sx={{
-                      background: 'linear-gradient(90deg, #FFD700, #FFF, #FFD700)',
-                      backgroundSize: '200% 100%',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      animation: 'shimmer 3s linear infinite',
+                      fontWeight: 900,
+                      mb: 3,
+                      fontSize: { xs: '2.5rem', md: '4rem' },
+                      textShadow: '0 4px 20px rgba(0,0,0,0.3)',
                     }}
                   >
-                    Perfection
-                  </Box>
-                  ?
-                </Typography>
-
-                <Typography
-                  variant="h6"
-                  sx={{
-                    mb: 5,
-                    opacity: 0.95,
-                    maxWidth: 600,
-                    mx: 'auto',
-                    fontWeight: 500,
-                    textShadow: '0 2px 10px rgba(0,0,0,0.2)',
-                  }}
-                >
-                  Join thousands of satisfied customers who trust us to make their celebrations
-                  unforgettable. Your dream cake is just a click away.
-                </Typography>
-
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: 3,
-                    justifyContent: 'center',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <Button
-                    component={Link}
-                    href="/cakes"
-                    variant="contained"
-                    size="large"
-                    sx={{
-                      py: 2,
-                      px: 6,
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      borderRadius: 50,
-                      bgcolor: 'white',
-                      color: 'primary.main',
-                      boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        bgcolor: 'white',
-                        transform: 'translateY(-5px)',
-                        boxShadow: '0 15px 50px rgba(0,0,0,0.4)',
-                      },
-                    }}
-                  >
-                    Browse Cakes
-                  </Button>
-
-                  <Button
-                    component={Link}
-                    href="/custom-order"
-                    variant="outlined"
-                    size="large"
-                    sx={{
-                      py: 2,
-                      px: 6,
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      borderRadius: 50,
-                      borderColor: 'white',
-                      color: 'white',
-                      borderWidth: 2,
-                      boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        borderColor: 'white',
-                        bgcolor: 'rgba(255,255,255,0.1)',
-                        transform: 'translateY(-5px)',
-                        borderWidth: 2,
-                        boxShadow: '0 15px 50px rgba(0,0,0,0.3)',
-                      },
-                    }}
-                  >
-                    Custom Order
-                  </Button>
-                </Box>
-
-                {/* Trust badges */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: 5,
-                    mt: 8,
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  {[
-                    { icon: <Favorite />, text: '99% Satisfaction' },
-                    { icon: <EmojiEvents />, text: 'Award Winning' },
-                    { icon: <AutoAwesome />, text: 'Premium Quality' },
-                  ].map((badge, index) => (
                     <Box
-                      key={index}
+                      component="span"
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        opacity: 0.9,
+                        background: (t) => `linear-gradient(90deg, ${t.palette.warning.main}, #FFF, ${t.palette.warning.main})`,
+                        backgroundSize: '200% 100%',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        animation: 'shimmer 3s linear infinite',
                       }}
                     >
-                      <Box sx={{ color: '#FFD700' }}>{badge.icon}</Box>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        {badge.text}
-                      </Typography>
+                      Perfection
                     </Box>
-                  ))}
+                  </Typography>
+
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      mb: 5,
+                      opacity: 0.95,
+                      maxWidth: 600,
+                      mx: 'auto',
+                      fontWeight: 500,
+                      textShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    Join thousands of satisfied customers who trust us to make their celebrations
+                    unforgettable. Your dream cake is just a click away.
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 3,
+                      justifyContent: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <Button
+                      component={Link}
+                      href="/cakes"
+                      variant="contained"
+                      size="large"
+                      sx={{
+                        py: 2,
+                        px: 6,
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        borderRadius: 50,
+                        bgcolor: 'white',
+                        color: 'primary.main',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          bgcolor: 'white',
+                          transform: 'translateY(-5px)',
+                          boxShadow: '0 15px 50px rgba(0,0,0,0.4)',
+                        },
+                      }}
+                    >
+                      Browse Cakes
+                    </Button>
+
+                    <Button
+                      component={Link}
+                      href="/custom-order"
+                      variant="outlined"
+                      size="large"
+                      sx={{
+                        py: 2,
+                        px: 6,
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        borderRadius: 50,
+                        borderColor: 'white',
+                        color: 'white',
+                        borderWidth: 2,
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: 'white',
+                          bgcolor: 'rgba(255,255,255,0.1)',
+                          transform: 'translateY(-5px)',
+                          borderWidth: 2,
+                          boxShadow: '0 15px 50px rgba(0,0,0,0.3)',
+                        },
+                      }}
+                    >
+                      Custom Order
+                    </Button>
+                  </Box>
+
+                  {/* Trust badges */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: 5,
+                      mt: 8,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {[
+                      { icon: <Favorite />, text: '99% Satisfaction' },
+                      { icon: <EmojiEvents />, text: 'Award Winning' },
+                      { icon: <AutoAwesome />, text: 'Premium Quality' },
+                    ].map((badge, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          opacity: 0.9,
+                        }}
+                      >
+                        <Box sx={{ color: 'warning.main' }}>{badge.icon}</Box>
+                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          {badge.text}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
-              </Box>
-            </motion.div>
-          </Container>
+              </motion.div>
+            </Container>
+          </Box>
         </Box>
       </Box>
     </>
   );
 }
-

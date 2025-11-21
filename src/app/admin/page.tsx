@@ -34,9 +34,14 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 
-const COLORS = ['#FF69B4', '#9C27B0', '#FFB6D9', '#BA68C8', '#F8BBD0', '#E1BEE7', '#CE93D8', '#AB47BC'];
+// Dynamic chart palette: pink shades in dark mode, light green shades in light mode
+const getChartPalette = (mode: 'light' | 'dark') =>
+  mode === 'dark'
+    ? ['#880E4F', '#D81B60', '#EC407A', '#F06292', '#F48FB1', '#F8BBD0']
+    : ['#3E9257', '#6FD694', '#8BE3A9', '#A5ECC0', '#C8F5D9', '#E2FBEC'];
 
 interface AnalyticsData {
   stats: {
@@ -58,29 +63,32 @@ interface AnalyticsData {
 }
 
 function StatCard({ icon, title, value, subtitle, color }: any) {
+  const theme = useTheme();
+  const paletteColor = (theme.palette as any)[color];
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+    <Card sx={{ height: '100%', position: 'relative' }}>
+      <CardContent sx={{ p: 2.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
           <Box
             sx={{
-              p: 1.5,
+              p: 1.25,
               borderRadius: 2,
-              bgcolor: `${color}.100`,
-              color: `${color}.main`,
-              mr: 2,
+              background: `linear-gradient(135deg, ${paletteColor.dark} 0%, ${paletteColor.main} 70%)`,
+              color: `${theme.palette.mode}`,
+              mr: 1.5,
+              boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
             }}
           >
             {icon}
           </Box>
-          <Typography variant="body2" color="text.secondary">
-            {title}
+          <Typography variant="caption" sx={{ fontWeight: 600, letterSpacing: 0.3, color: 'text.secondary' }}>
+            {title.toUpperCase()}
           </Typography>
         </Box>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.25, lineHeight: 1 }}>
           {value}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
           {subtitle}
         </Typography>
       </CardContent>
@@ -89,6 +97,8 @@ function StatCard({ icon, title, value, subtitle, color }: any) {
 }
 
 export default function AdminDashboard() {
+  const theme = useTheme();
+  const CHART_COLORS = getChartPalette(theme.palette.mode);
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
@@ -230,14 +240,14 @@ export default function AdminDashboard() {
                 <Line
                   type="monotone"
                   dataKey="sales"
-                  stroke="#FF69B4"
+                  stroke={theme.palette.primary.main}
                   strokeWidth={3}
                   name="Sales (KSh)"
                 />
                 <Line
                   type="monotone"
                   dataKey="orders"
-                  stroke="#9C27B0"
+                  stroke={theme.palette.secondary.main}
                   strokeWidth={3}
                   name="Orders"
                 />
@@ -259,11 +269,10 @@ export default function AdminDashboard() {
                   labelLine={false}
                   label={(entry) => entry.name}
                   outerRadius={100}
-                  fill="#8884d8"
                   dataKey="value"
                 >
                   {data.categoryDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -284,7 +293,7 @@ export default function AdminDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="totalSold" fill="#FF69B4" name="Units Sold" />
+              <Bar dataKey="totalSold" fill={CHART_COLORS[2]} name="Units Sold" />
             </BarChart>
           </ResponsiveContainer>
         </Paper>

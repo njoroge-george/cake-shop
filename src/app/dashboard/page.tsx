@@ -57,11 +57,11 @@ export default function DashboardPage() {
       <Box sx={{ bgcolor: 'background.default', minHeight: '80vh' }}>
         {/* Hero Section */}
         <Box
-          sx={{
-            background: 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 100%)',
-            color: 'white',
+          sx={(theme) => ({
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.light} 100%)`,
+            color: theme.palette.text.primary,
             py: 6,
-          }}
+          })}
         >
           <Container maxWidth="lg">
             <motion.div

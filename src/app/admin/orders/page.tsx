@@ -24,6 +24,8 @@ import {
   InputLabel,
   Select,
   CircularProgress,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import { MoreVert, Visibility, Edit } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
@@ -55,6 +57,8 @@ interface Order {
 export default function AdminOrdersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -141,25 +145,47 @@ export default function AdminOrdersPage() {
   return (
     <AdminLayout>
       <Box>
-        {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+        {/* Header: 12-column responsive layout */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(12, 1fr)',
+              sm: 'repeat(12, 1fr)',
+              md: 'repeat(12, 1fr)',
+            },
+            gap: 2,
+            mb: 3,
+            alignItems: 'center',
+          }}
+        >
+          <Box sx={{ gridColumn: { xs: 'span 12', md: 'span 8' } }}>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
               Orders Management
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body2" color="text.secondary">
               Manage and track all customer orders
             </Typography>
           </Box>
-          <Button variant="contained" sx={{ borderRadius: 2 }}>
-            Export Orders
-          </Button>
+          <Box sx={{ gridColumn: { xs: 'span 12', md: 'span 4' }, textAlign: { xs: 'left', md: 'right' } }}>
+            <Button variant="contained" size={isMdUp ? 'medium' : 'small'} sx={{ borderRadius: 1 }}>
+              Export Orders
+            </Button>
+          </Box>
         </Box>
 
-        {/* Table */}
-        <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        {/* Orders Table */}
+        <Paper
+          sx={{
+            borderRadius: 1,
+            overflow: 'hidden',
+            background: theme.palette.mode === 'light'
+              ? 'linear-gradient(145deg, #FFFFFF 0%, #F1F5F9 100%)'
+              : 'linear-gradient(145deg, #1E293B 0%, #0F172A 100%)',
+          }}
+        >
           <TableContainer>
-            <Table>
+            <Table size={isMdUp ? 'medium' : 'small'}>
               <TableHead sx={{ bgcolor: 'background.default' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 700 }}>Order #</TableCell>
@@ -211,8 +237,8 @@ export default function AdminOrdersPage() {
 
           {/* Empty State */}
           {orders.length === 0 && (
-            <Box sx={{ p: 6, textAlign: 'center' }}>
-              <Typography variant="h6" color="text.secondary">
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="body1" color="text.secondary">
                 No orders found
               </Typography>
             </Box>

@@ -44,16 +44,18 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json();
-    const role = (session.user as any).role;
-    const senderId = (session.user as any).id as string;
+  const body = await req.json();
+  const role = (session.user as any).role;
+  // Support either id or userId naming just in case
+  const senderId = (session.user as any).id || (session.user as any).userId;
 
-    const text = String(body.text || '').trim();
-    if (!text) return NextResponse.json({ error: 'Message text required' }, { status: 400 });
+  const text = String(body.text || '').trim();
+  if (!text) return NextResponse.json({ error: 'Message text required' }, { status: 400 });
 
-    // For customer, send to themselves (their thread). For admin, require target userId.
-    const targetUserId = role === 'ADMIN' ? String(body.userId || '') : senderId;
-    if (!targetUserId) return NextResponse.json({ error: 'Target userId required' }, { status: 400 });
+  // For customer, send to themselves (their thread). For admin, fallback to their own id if userId not explicitly provided.
+  // This prevents 400 errors when admin opens chat panel without selecting a specific user.
+  const targetUserId = role === 'ADMIN' ? String(body.userId || senderId || '') : senderId;
+  if (!targetUserId) return NextResponse.json({ error: 'Target userId required' }, { status: 400 });
 
     const created = await prisma.message.create({
       data: {
@@ -63,7 +65,7 @@ export async function POST(req: NextRequest) {
         // mark replier if admin sent
         repliedBy: role === 'ADMIN' ? senderId : null,
         name: role === 'ADMIN' ? 'Admin' : (session.user as any).name || 'Customer',
-        email: role === 'ADMIN' ? null : (session.user as any).email || null,
+        email: role === 'ADMIN' ? (session.user as any).email || null : (session.user as any).email || null,
       },
       select: { id: true, message: true, createdAt: true, repliedBy: true },
     });

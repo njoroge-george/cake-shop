@@ -42,11 +42,11 @@ export default function ContactPage() {
       <Box sx={{ bgcolor: 'background.default' }}>
         {/* Hero Section */}
         <Box
-          sx={{
-            background: 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 100%)',
-            color: 'white',
+          sx={(theme) => ({
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.light} 100%)`,
+            color: theme.palette.text.primary,
             py: 8,
-          }}
+          })}
         >
           <Container maxWidth="lg">
             <motion.div
@@ -188,11 +188,11 @@ export default function ContactPage() {
 
         {/* FAQ or CTA Section */}
         <Box
-          sx={{
-            background: 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 100%)',
-            color: 'white',
+          sx={(theme) => ({
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.light} 100%)`,
+            color: theme.palette.text.primary,
             py: 6,
-          }}
+          })}
         >
           <Container maxWidth="md">
             <Typography

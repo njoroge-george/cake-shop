@@ -119,8 +119,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar
         sx={{
-          background: 'linear-gradient(135deg, #FF69B4 0%, #9C27B0 100%)',
-          color: 'white',
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          color: 'common.white',
         }}
       >
         <Typography variant="h6" noWrap sx={{ fontWeight: 700 }}>
@@ -136,12 +136,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               href={item.path}
               selected={pathname === item.path}
               sx={{
-                borderRadius: 2,
+                borderRadius: 1,
                 '&.Mui-selected': {
-                  bgcolor: 'primary.light',
-                  color: 'primary.main',
+                  bgcolor: 'primary.dark',
+                  color: 'primary.light',
                   '&:hover': {
-                    bgcolor: 'primary.light',
+                    bgcolor: 'secondary.main',
                   },
                 },
               }}
@@ -208,7 +208,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          bgcolor: 'white',
+          bgcolor: 'background.paper',
           color: 'text.primary',
           boxShadow: 1,
         }}

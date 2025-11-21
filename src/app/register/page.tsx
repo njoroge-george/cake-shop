@@ -68,13 +68,13 @@ export default function RegisterPage() {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%)',
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.light} 100%)`,
         py: 4,
-      }}
+      })}
     >
       <Container maxWidth="sm">
         <motion.div

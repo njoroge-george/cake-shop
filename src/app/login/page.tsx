@@ -12,6 +12,7 @@ import {
   Link as MuiLink,
   InputAdornment,
   IconButton,
+  useTheme,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Formik, Form, Field } from 'formik';
@@ -54,13 +55,15 @@ export default function LoginPage() {
     }
   };
 
+  const theme = useTheme();
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #FF69B4 0%, #FFB6D9 100%)',
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
         py: 4,
       }}
     >
